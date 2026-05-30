@@ -4,7 +4,7 @@ import { StatsCounter } from '@/components/StatsCounter';
 
 const team = [
   { name: 'Muhammad Gulzaman', role: 'AI & Full-Stack Engineer', photo: '/picture/gullzaman.jpg' },
-  { name: 'Muhammad Usman', role: 'Frontend Developer', photo: '/picture/hasnain.jpg' },
+  { name: 'Muhammad Hasnain', role: 'Frontend Developer', photo: '/picture/hasnain.jpg' },
   { name: 'Syed Rizwan', role: 'Python & Machine Learning Expert', photo: '/picture/rizwan.jpg' },
   { name: 'Shaikh Usman', role: 'PHP & Backend Developer', photo: '/picture/IMG-20240608-WA0037.jpg' },
 ];
