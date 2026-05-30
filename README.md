@@ -1,6 +1,6 @@
 # Smart Resume AI
 
-AI-powered resume screening and job matching — **Next.js** app ready for **Vercel**.
+AI-powered resume screening and job matching 
 
 ## Features
 
