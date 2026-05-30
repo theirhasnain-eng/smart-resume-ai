@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  hr
+  candidate
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String    @db.VarChar(100)
+  email        String    @unique @db.VarChar(190)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  role         Role      @default(candidate)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  jobs         Job[]     @relation("HrJobs")
+  resumes      Resume[]
+}
+
+model Job {
+  id          Int       @id @default(autoincrement())
+  hrId        Int       @map("hr_id")
+  title       String    @db.VarChar(150)
+  description String    @db.Text
+  location    String?   @db.VarChar(120)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  hr          User      @relation("HrJobs", fields: [hrId], references: [id], onDelete: Cascade)
+  matches     Match[]
+}
+
+model Resume {
+  id            Int       @id @default(autoincrement())
+  candidateId   Int       @map("candidate_id")
+  originalName  String    @map("original_name") @db.VarChar(255)
+  extractedText String?   @map("extracted_text") @db.Text
+  uploadedAt    DateTime  @default(now()) @map("uploaded_at")
+  candidate     User      @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  matches       Match[]
+}
+
+model Match {
+  id              Int      @id @default(autoincrement())
+  jobId           Int      @map("job_id")
+  resumeId        Int      @map("resume_id")
+  similarityScore Decimal  @map("similarity_score") @db.Decimal(5, 2)
+  skillGap        String?  @map("skill_gap") @db.Text
+  analyzedAt      DateTime @default(now()) @map("analyzed_at")
+  job             Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  resume          Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, resumeId])
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  email     String   @db.VarChar(190)
+  message   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+}
