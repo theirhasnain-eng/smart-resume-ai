@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { contactFormAction } from '@/app/actions/contact';
 
 const team = [
@@ -71,12 +72,11 @@ export function HomeBelowFold({ contactOk, contactErr }: Props) {
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
             {team.map((m) => (
               <div key={m.name} className="glass-card p-3 text-center">
-                <img
+                <Image
                   src={m.photo}
                   alt={m.name}
                   className="team-avatar mx-auto mb-3"
                   loading="lazy"
-                  decoding="async"
                   width={150}
                   height={160}
                 />
