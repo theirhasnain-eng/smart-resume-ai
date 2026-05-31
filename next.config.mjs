@@ -7,7 +7,6 @@ const nextConfig = {
       bodySizeLimit: '10mb',
     },
     serverComponentsExternalPackages: ['unpdf', 'mammoth'],
-    optimizePackageImports: ['jose', 'bcryptjs'],
   },
 };
 

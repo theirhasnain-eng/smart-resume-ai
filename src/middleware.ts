@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
-import { getSecret } from '@/lib/middleware-auth';
+import { getSecret, verifySessionToken } from '@/lib/middleware-auth';
 
 const COOKIE = 'sra_session';
 
@@ -25,10 +24,12 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const { payload } = await jwtVerify(token, getSecret());
-    const role = String(payload.role);
+    const session = await verifySessionToken(token, getSecret());
+    if (!session) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
     const allowed = roleRoutes[protectedPrefix];
-    if (!allowed.includes(role)) {
+    if (!allowed.includes(session.role)) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   } catch {
