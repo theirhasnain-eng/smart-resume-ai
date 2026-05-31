@@ -1,10 +1,13 @@
 import Link from 'next/link';
-import { getSession } from '@/lib/auth';
+import type { SessionUser } from '@/lib/auth';
 import { LogoutButton } from '@/components/LogoutButton';
 
-export async function Footer() {
+type FooterProps = {
+  user: SessionUser | null;
+};
+
+export function Footer({ user }: FooterProps) {
   const year = new Date().getFullYear();
-  const user = await getSession();
 
   const dashboardHref = user
     ? user.role === 'admin'
@@ -19,7 +22,7 @@ export async function Footer() {
       <div className="site-container">
         <div className="footer-grid">
           <div className="footer-brand-block">
-            <Link href="/" className="footer-brand">
+            <Link href="/" prefetch className="footer-brand">
               <i className="fa-solid fa-robot me-2" />
               Smart Resume AI
             </Link>
@@ -32,25 +35,25 @@ export async function Footer() {
             <h6 className="footer-heading">Explore</h6>
             <ul className="footer-links">
               <li>
-                <Link href="/">
+                <Link href="/" prefetch>
                   <i className="fa-solid fa-house me-2" />
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/#features">
+                <Link href="/#features" prefetch={false}>
                   <i className="fa-solid fa-sparkles me-2" />
                   Features
                 </Link>
               </li>
               <li>
-                <Link href="/#team">
+                <Link href="/#team" prefetch={false}>
                   <i className="fa-solid fa-people-group me-2" />
                   Team
                 </Link>
               </li>
               <li>
-                <Link href="/#contact">
+                <Link href="/#contact" prefetch={false}>
                   <i className="fa-solid fa-envelope me-2" />
                   Contact
                 </Link>
@@ -64,7 +67,7 @@ export async function Footer() {
               {user ? (
                 <>
                   <li>
-                    <Link href={dashboardHref!}>
+                    <Link href={dashboardHref!} prefetch>
                       <i className="fa-solid fa-gauge-high me-2" />
                       {user.role === 'admin'
                         ? 'Admin Dashboard'
@@ -80,13 +83,13 @@ export async function Footer() {
               ) : (
                 <>
                   <li>
-                    <Link href="/login">
+                    <Link href="/login" prefetch>
                       <i className="fa-solid fa-right-to-bracket me-2" />
                       Login
                     </Link>
                   </li>
                   <li>
-                    <Link href="/register">
+                    <Link href="/register" prefetch>
                       <i className="fa-solid fa-user-plus me-2" />
                       Register
                     </Link>

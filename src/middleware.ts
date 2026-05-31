@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
+import { getSecret } from '@/lib/middleware-auth';
 
 const COOKIE = 'sra_session';
 
@@ -24,9 +25,7 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const secret = process.env.AUTH_SECRET;
-    if (!secret) throw new Error('no secret');
-    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
+    const { payload } = await jwtVerify(token, getSecret());
     const role = String(payload.role);
     const allowed = roleRoutes[protectedPrefix];
     if (!allowed.includes(role)) {

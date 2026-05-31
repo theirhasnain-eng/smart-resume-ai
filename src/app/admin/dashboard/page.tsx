@@ -10,12 +10,14 @@ export default async function AdminDashboard({
 }) {
   requireRole(await getSession(), ['admin']);
 
-  const hrUsers = await prisma.user.findMany({ where: { role: 'hr' }, orderBy: { createdAt: 'desc' }, take: 25 });
-  const stats = {
-    resumes: await prisma.resume.count(),
-    jobs: await prisma.job.count(),
-    contacts: await prisma.contactMessage.count(),
-  };
+  const [hrUsers, resumes, jobs, contacts] = await Promise.all([
+    prisma.user.findMany({ where: { role: 'hr' }, orderBy: { createdAt: 'desc' }, take: 25 }),
+    prisma.resume.count(),
+    prisma.job.count(),
+    prisma.contactMessage.count(),
+  ]);
+
+  const stats = { resumes, jobs, contacts };
 
   return (
     <div className="site-container page-content py-8">

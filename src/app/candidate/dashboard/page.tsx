@@ -24,12 +24,16 @@ export default async function CandidateDashboard({
               ? 'Could not read file text. Try .txt, .docx, or a simple PDF (not a scanned image).'
               : null;
 
-  const resumes = await prisma.resume.findMany({
-    where: { candidateId: user.id },
-    orderBy: { uploadedAt: 'desc' },
-  });
+  const [resumes, matchData] = await Promise.all([
+    prisma.resume.findMany({
+      where: { candidateId: user.id },
+      orderBy: { uploadedAt: 'desc' },
+      select: { id: true, originalName: true },
+    }),
+    getCandidateMatches(user.id),
+  ]);
 
-  const { best, jobs } = await getCandidateMatches(user.id);
+  const { best, jobs } = matchData;
 
   return (
     <div className="site-container page-content py-8">

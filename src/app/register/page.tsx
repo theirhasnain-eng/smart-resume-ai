@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { registerAction } from '@/app/actions/auth';
+import { SubmitButton } from '@/components/SubmitButton';
 
 export default function RegisterPage({
   searchParams,
@@ -45,10 +46,10 @@ export default function RegisterPage({
             </label>
             <input id="confirm" name="confirm" type="password" className="form-control" required minLength={6} />
           </div>
-          <button type="submit" className="btn-gradient w-full py-2">
+          <SubmitButton>
             <i className="fa-solid fa-user-plus me-2" />
             Register
-          </button>
+          </SubmitButton>
         </form>
         <p className="text-accent mt-4 text-center text-sm">
           <Link href="/login" className="underline">

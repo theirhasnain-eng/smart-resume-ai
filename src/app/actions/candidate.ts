@@ -44,16 +44,61 @@ export async function uploadResumeAction(formData: FormData) {
 }
 
 export async function getCandidateMatches(userId: number) {
-  const resumes = await prisma.resume.findMany({ where: { candidateId: userId } });
+  // Fast path: use HR analysis results already stored in DB
+  const stored = await prisma.match.findMany({
+    where: { resume: { candidateId: userId } },
+    include: { job: true },
+    orderBy: { similarityScore: 'desc' },
+    take: 50,
+  });
+
+  if (stored.length > 0) {
+    const byJob = new Map<number, (typeof stored)[0]>();
+    for (const m of stored) {
+      const existing = byJob.get(m.jobId);
+      if (!existing || Number(m.similarityScore) > Number(existing.similarityScore)) {
+        byJob.set(m.jobId, m);
+      }
+    }
+    const ranked = [...byJob.values()].sort(
+      (a, b) => Number(b.similarityScore) - Number(a.similarityScore)
+    );
+    const jobs = ranked.map((m) => ({
+      title: m.job.title,
+      location: m.job.location,
+      score: Number(m.similarityScore),
+    }));
+    const top = ranked[0];
+    return {
+      best: {
+        title: top.job.title,
+        location: top.job.location,
+        score: Number(top.similarityScore),
+        skillGap: top.skillGap ?? '',
+      },
+      jobs,
+    };
+  }
+
+  // Fallback: live match (limited) before HR runs analyze
+  const resumes = await prisma.resume.findMany({
+    where: { candidateId: userId },
+    select: { id: true, extractedText: true },
+  });
   if (!resumes.length) return { best: null, jobs: [] as { title: string; location: string | null; score: number }[] };
 
-  const jobs = await prisma.job.findMany();
+  const jobs = await prisma.job.findMany({
+    take: 10,
+    orderBy: { createdAt: 'desc' },
+    select: { title: true, location: true, description: true },
+  });
 
   const results: { title: string; location: string | null; score: number }[] = [];
   let best: { title: string; location: string | null; score: number; skillGap: string } | null = null;
 
+  const payload = resumes.map((r) => ({ id: r.id, text: r.extractedText ?? '' }));
+
   for (const job of jobs) {
-    const payload = resumes.map((r) => ({ id: r.id, text: r.extractedText ?? '' }));
     const matches = matchJobToResumes(job.description, payload);
     if (!matches.length) continue;
     const top = matches[0];

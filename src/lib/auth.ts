@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import type { Role } from '@prisma/client';
@@ -11,10 +12,14 @@ export type SessionUser = {
   role: Role;
 };
 
+let cachedSecret: Uint8Array | null = null;
+
 function secret() {
+  if (cachedSecret) return cachedSecret;
   const s = process.env.AUTH_SECRET;
   if (!s) throw new Error('AUTH_SECRET is not set');
-  return new TextEncoder().encode(s);
+  cachedSecret = new TextEncoder().encode(s);
+  return cachedSecret;
 }
 
 export async function createSession(user: SessionUser): Promise<void> {
@@ -37,7 +42,8 @@ export async function createSession(user: SessionUser): Promise<void> {
   });
 }
 
-export async function getSession(): Promise<SessionUser | null> {
+/** Deduplicated per request — safe to call from layout, navbar, and pages. */
+export const getSession = cache(async (): Promise<SessionUser | null> => {
   const token = cookies().get(COOKIE)?.value;
   if (!token) return null;
   try {
@@ -51,7 +57,7 @@ export async function getSession(): Promise<SessionUser | null> {
   } catch {
     return null;
   }
-}
+});
 
 export async function clearSession(): Promise<void> {
   cookies().delete(COOKIE);

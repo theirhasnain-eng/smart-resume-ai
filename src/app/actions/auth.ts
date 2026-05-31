@@ -9,9 +9,7 @@ export async function loginAction(formData: FormData) {
   const email = String(formData.get('email') ?? '').trim().toLowerCase();
   const password = String(formData.get('password') ?? '');
 
-  const user = await prisma.user.findFirst({
-    where: { email: { equals: email, mode: 'insensitive' } },
-  });
+  const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
     redirect('/login?error=invalid');
@@ -39,7 +37,7 @@ export async function registerAction(formData: FormData) {
     redirect('/register?error=fields');
   }
 
-  const exists = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
+  const exists = await prisma.user.findUnique({ where: { email } });
   if (exists) redirect('/register?error=exists');
 
   const hash = await bcrypt.hash(password, 10);

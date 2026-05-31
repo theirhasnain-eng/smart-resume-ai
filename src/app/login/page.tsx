@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { loginAction } from '@/app/actions/auth';
+import { SubmitButton } from '@/components/SubmitButton';
 
 export default function LoginPage({
   searchParams,
@@ -32,10 +33,10 @@ export default function LoginPage({
             </label>
             <input id="password" name="password" type="password" className="form-control" required />
           </div>
-          <button type="submit" className="btn-gradient w-full py-2">
+          <SubmitButton>
             <i className="fa-solid fa-right-to-bracket me-2" />
             Login
-          </button>
+          </SubmitButton>
         </form>
         <p className="text-accent mt-4 text-center text-sm">
           No account?{' '}

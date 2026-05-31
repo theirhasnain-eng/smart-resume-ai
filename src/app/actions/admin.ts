@@ -17,7 +17,7 @@ export async function createHrAction(formData: FormData) {
     redirect('/admin/dashboard?error=hr-fields');
   }
 
-  const exists = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
+  const exists = await prisma.user.findUnique({ where: { email } });
   if (exists) redirect('/admin/dashboard?error=hr-exists');
 
   const hash = await bcrypt.hash(password, 10);
